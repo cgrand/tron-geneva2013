@@ -49,6 +49,8 @@
 
 (defn- alive? [[hue b]] (when (= 255 b) hue))
 
+(def ^:dynamic *mute-stdout* false)
+
 (defn biker [arena strategy]
   (let [look (fn [pos] (if (valid-pos? pos)
                          (some-> arena (get-in pos) deref deref alive?)
@@ -59,8 +61,10 @@
 	      (let [t (java.lang.System/currentTimeMillis)
               state' (try 
                        (binding
-                        [*out* (java.io.FileWriter.
-                                 "/dev/null")]
+                        [*out* (if *mute-stdout* 
+                                 (java.io.FileWriter.
+                                   "/dev/null")
+                                 *out*)]
                         (strategy look state))
                        (catch Exception e
                          (pst e)))
